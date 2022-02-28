@@ -33,4 +33,42 @@ M.parse_api_response = function(response)
     return true, issues
 end
 
+M.get_basic_auth = function(config)
+    local user = M.get_user(config)
+    local api_key = vim.fn.getenv("JIRA_USER_API_KEY")
+    return user .. ':' .. api_key
+end
+
+M.get_request_url = function(config)
+    local url = M.get_jira_url(config)
+    local jql = M.get_jql(config)
+    return string.format('%s/rest/api/2/search?fields=summary&jql=', url) ..  jql
+end
+
+M.get_jql = function(config)
+    local username = M.get_username(config)
+    return string.format(config.jira.jql, username)
+end
+
+M.get_jira_url = function(config)
+    local url = config.jira.url
+    if vim.fn.exists("$JIRA_WORKSPACE_URL") == 1 then
+        url = vim.fn.getenv("JIRA_WORKSPACE_URL")
+    end
+    return url
+end
+
+M.get_user = function(config)
+    local user = config.jira.email
+    if vim.fn.exists("$JIRA_USER_EMAIL") == 1 then
+        user = vim.fn.getenv("JIRA_USER_EMAIL")
+    end
+    return user
+end
+
+M.get_username = function(config)
+    local user = M.get_user(config)
+    return string.gsub(user, "@", "\\u0040")
+end
+
 return M

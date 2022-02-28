@@ -5,6 +5,7 @@ local utils = require('cmp_jira.utils')
 local source = {
     config = {},
     filetypes = {},
+    cache = {},
 }
 
 source.new = function(overrides)
@@ -17,6 +18,11 @@ source.new = function(overrides)
         self.filetypes[item] = true
     end
 
+    -- defaults
+    if self.config.jira.jql == nil or self.config.jira.jql == "" then
+        self.config.jira.jql = "assignee=%s+and+resolution=unresolved"
+    end
+
     return self
 end
 
@@ -24,20 +30,23 @@ function source:is_available()
         return self.filetypes["*"] ~= nil or self.filetypes[vim.bo.filetype] ~= nil
 end
 
-function source:complete(params, callback)
-    local user = vim.fn.getenv("JIRA_USER_EMAIL")
-    local api_key = vim.fn.getenv("JIRA_USER_API_KEY")
-    local url = vim.fn.getenv("JIRA_WORKSPACE_URL")
+function source:complete(_, callback)
+    -- try to get the items from cache first before calling the API
+    local bufnr = vim.api.nvim_get_current_buf()
+    if self.cache[bufnr] then
+        callback({ items = self.cache[bufnr] })
+        return true
+    end
 
-    local basic_auth = user .. ':' .. api_key
+    local req_url = utils.get_request_url(self.config)
+    local basic_auth = utils.get_basic_auth(self.config)
 
-    local req_url = string.format('%s/rest/api/2/search?jql=assignee=marius.svechla\\u0040share-now.com+and+resolution=unresolved&fields=summary', url)
-
+    -- run curl command
     Job:new({
       command = 'curl',
       args = { '-u', basic_auth, '-XGET', '-H', 'Content-Type: application/json', req_url },
       cwd = '/usr/bin',
-      on_exit = function(j, return_val)
+      on_exit = function(j, _)
         local resp = j:result()[1]
         local ok, parsed_issues = utils.parse_api_response(resp)
         if not ok then
@@ -58,10 +67,12 @@ function source:complete(params, callback)
             })
         end
 
+        -- update the cache
+        self.cache[bufnr] = items
+
         callback({ items = items })
       end,
-    }):sync() -- or start()
-
+    }):start()
 
     return false
 end

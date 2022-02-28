@@ -3,7 +3,7 @@ local M = {
     jira = {
         url = '',
         email = '',
-        apiKey = '',
+        jql = 'assignee=%s+and+resolution=unresolved',
     },
 }
 
