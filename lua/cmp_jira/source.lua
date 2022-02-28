@@ -1,5 +1,6 @@
 local cmp = require('cmp')
 local Job = require('plenary.job')
+local curl = require "plenary.curl"
 local utils = require('cmp_jira.utils')
 
 local source = {
@@ -42,37 +43,34 @@ function source:complete(_, callback)
     local basic_auth = utils.get_basic_auth(self.config)
 
     -- run curl command
-    Job:new({
-      command = 'curl',
-      args = { '-u', basic_auth, '-XGET', '-H', 'Content-Type: application/json', req_url },
-      cwd = '/usr/bin',
-      on_exit = function(j, _)
-        local resp = j:result()[1]
-        local ok, parsed_issues = utils.parse_api_response(resp)
-        if not ok then
-            print("err")
-            return false
+    curl.get(req_url, {
+        auth = basic_auth,
+        callback = function(out)
+            local ok, parsed_issues = utils.parse_api_response(out.body)
+            if not ok then
+                return false
+            end
+            print(vim.inspect(parsed_issues))
+
+            local items = {}
+            for _, i in ipairs(parsed_issues) do
+                table.insert(items, {
+                    label = i.key,
+                    labelDetails = {
+                        description = i.summary,
+                    },
+                    insertText = i.key,
+                    word = i.key,
+                })
+            end
+
+            -- update the cache
+            self.cache[bufnr] = items
+
+            callback({ items = items })
+            return true
         end
-        print(vim.inspect(parsed_issues))
-
-        local items = {}
-        for _, i in ipairs(parsed_issues) do
-            table.insert(items, {
-                label = i.key,
-                labelDetails = {
-                    description = i.summary,
-                },
-                insertText = i.key,
-                word = i.key,
-            })
-        end
-
-        -- update the cache
-        self.cache[bufnr] = items
-
-        callback({ items = items })
-      end,
-    }):start()
+    })
 
     return false
 end
