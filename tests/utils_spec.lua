@@ -125,4 +125,34 @@ describe("utils", function()
 
     end)
 
+    it("can get user", function()
+        local user = utils.get_user({
+            jira = {
+                email = "test.user@example.com"
+            },
+        })
+
+        assert.equals("test.user@example.com", user)
+    end)
+
+    it("can get username", function()
+        local user = utils.get_username({
+            jira = {
+                email = "test.user@example.com"
+            },
+        })
+
+        assert.equals("test.user\\u0040example.com", user)
+    end)
+
+    it("can get jira url", function()
+        local url = utils.get_jira_url({
+            jira = {
+                url = "https://jira.example.com"
+            },
+        })
+
+        assert.equals("https://jira.example.com", url)
+    end)
+
 end)
