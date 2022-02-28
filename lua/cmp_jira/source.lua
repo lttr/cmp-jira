@@ -1,5 +1,4 @@
 local cmp = require('cmp')
-local Job = require('plenary.job')
 local curl = require "plenary.curl"
 local utils = require('cmp_jira.utils')
 
