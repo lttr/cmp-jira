@@ -2,6 +2,8 @@
 
 [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) completion source for Jira.
 
+![screenshot](./cmp-jira-screenshot.png)
+
 ## Getting started
 
 Use your favorit plugin manager to install the plugin:
