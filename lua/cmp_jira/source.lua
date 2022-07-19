@@ -62,8 +62,10 @@ function source:complete(_, callback)
           table.insert(
             items,
             {
-              label = issue.key,
-              filterText = issue.summary
+              label = string.format("%s: %s", issue.key, issue.summary),
+              filterText = string.format("%s: %s", issue.key, issue.summary),
+              insertText = issue.key,
+              sortText = issue.key
             }
           )
         end
