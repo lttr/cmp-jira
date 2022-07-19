@@ -70,3 +70,4 @@ Defaults to: `assignee=%s+and+resolution=unresolved`
 - inspired by [cmp-git](https://github.com/petertriho/cmp-git)
 - thanks to [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) for curl support & the testing framework
 
+## This [repo](https://github.com/lttr/cmp-jira) was forked from https://gitlab.com/msvechla/cmp-jira
