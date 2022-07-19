@@ -58,17 +58,12 @@ function source:complete(_, callback)
         print(vim.inspect(parsed_issues))
 
         local items = {}
-        for _, i in ipairs(parsed_issues) do
+        for _, issue in ipairs(parsed_issues) do
           table.insert(
             items,
             {
-              label = i.key,
-              labelDetails = {
-                detail = i.summary,
-                description = i.summary
-              },
-              insertText = i.key,
-              word = i.key
+              label = issue.key,
+              filterText = issue.summary
             }
           )
         end
