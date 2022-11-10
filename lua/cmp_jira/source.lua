@@ -55,7 +55,6 @@ function source:complete(_, callback)
         if not ok then
           return false
         end
-        print(vim.inspect(parsed_issues))
 
         local items = {}
         for _, issue in ipairs(parsed_issues) do
