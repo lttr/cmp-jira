@@ -43,13 +43,14 @@ function source:complete(_, callback)
   end
 
   local req_url = utils.get_request_url(self.config)
-  local basic_auth = utils.get_basic_auth(self.config)
 
   -- run curl command
   curl.get(
     req_url,
     {
-      auth = basic_auth,
+      headers = {
+        Authorization = utils.get_auth_header()
+      },
       callback = function(out)
         local ok, parsed_issues = utils.parse_api_response(out.body)
         if not ok then

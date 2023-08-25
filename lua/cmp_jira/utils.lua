@@ -39,6 +39,11 @@ M.get_basic_auth = function(config)
     return user .. ':' .. api_key
 end
 
+M.get_auth_header = function(config)
+    local api_key = vim.fn.getenv("JIRA_USER_API_KEY")
+    return string.format("Bearer %s", api_key)
+end
+
 M.get_request_url = function(config)
     local url = M.get_jira_url(config)
     local jql = M.get_jql(config)
