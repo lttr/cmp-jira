@@ -10,12 +10,12 @@ local source = {
 
 source.new = function(overrides)
   local self =
-    setmetatable(
-    {},
-    {
-      __index = source
-    }
-  )
+      setmetatable(
+        {},
+        {
+          __index = source
+        }
+      )
 
   self.config = vim.tbl_extend("force", require("cmp_jira.config"), overrides or {})
   for _, item in ipairs(self.config.filetypes) do
@@ -24,7 +24,7 @@ source.new = function(overrides)
 
   -- defaults
   if self.config.jira.jql == nil or self.config.jira.jql == "" then
-    self.config.jira.jql = "assignee=%s+and+resolution=unresolved"
+    self.config.jira.jql = "(assignee = currentUser() OR reporter = currentUser()) order by updated DESC"
   end
 
   return self
@@ -38,7 +38,7 @@ function source:complete(_, callback)
   -- try to get the items from cache first before calling the API
   local bufnr = vim.api.nvim_get_current_buf()
   if self.cache[bufnr] then
-    callback({items = self.cache[bufnr]})
+    callback({ items = self.cache[bufnr] })
     return true
   end
 
@@ -74,7 +74,7 @@ function source:complete(_, callback)
         -- update the cache
         self.cache[bufnr] = items
 
-        callback({items = items})
+        callback({ items = items })
         return true
       end
     }
